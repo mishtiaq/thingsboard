@@ -1,0 +1,15 @@
+version: '3.0'
+services:
+  thingsboard:
+    image: "thingsboard/tb-postgres:latest"
+    restart: always
+    environment:
+      TB_QUEUE_TYPE: in-memory
+      JAVA_OPTS: "-Xms512m -Xmx2048m"
+    ports:
+      - "8080:8080"
+      - "1883:1883"
+      - "5683-5688:5683-5688/udp"
+    volumes:
+      - /var/lib/thingsboard/data:/data
+      - /var/lib/thingsboard/logs:/var/log/thingsboard
