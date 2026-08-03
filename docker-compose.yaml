@@ -1,15 +1,29 @@
 version: '3.0'
 services:
   thingsboard:
-    image: "thingsboard/tb-postgres:latest"
+    image: 'thingsboard/tb-postgres:latest'
     restart: always
+    user: '799:799'
     environment:
       TB_QUEUE_TYPE: in-memory
-      JAVA_OPTS: "-Xms512m -Xmx2048m"
+      JAVA_OPTS: '-Xms512m -Xmx2048m'
+      HTTP_BIND_PORT: '9090'
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://localhost:5432/thingsboard'
+      SPRING_DATASOURCE_USERNAME: 'thingsboard'
+      SPRING_DATASOURCE_PASSWORD: 'postgres'
+    # Fix /var/run/postgresql ownership on every start
+    entrypoint:
+      - bash
+      - -lc
+      - |
+        mkdir -p /var/run/postgresql
+        chown -R 799:799 /var/run/postgresql
+        chmod 775 /var/run/postgresql
+        exec /usr/bin/start-tb.sh
     ports:
-      - "8080:8080"
-      - "1883:1883"
-      - "5683-5688:5683-5688/udp"
+      - '8080:9090'          # host 8080 -> container UI port 9090
+      - '1883:1883'
+      - '5683-5688:5683-5688/udp'
     volumes:
-      - /var/lib/thingsboard/data:/data
-      - /var/lib/thingsboard/logs:/var/log/thingsboard
+      - '/var/lib/thingsboard/data:/data'
+      - '/var/lib/thingsboard/logs:/var/log/thingsboard'
